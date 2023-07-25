@@ -1,0 +1,20 @@
+[
+	{
+		"page": "home",
+		"default": true,
+		"greeting": "The initial message to display to the user in the chat",
+		"prompts": [
+			"I want an e-bike that can keep up with city traffic.",
+			"Show me e-bikes with long battery life for my daily commute.",
+			"What are the most popular e-bike models for city riders?"
+		]
+	},
+	{
+		"page": "shopping-cart",
+		"prompts": [
+			"Question 1 for shopping cart?",
+			"Question 2 for shopping cart?",
+			"Question 3 for shopping cart?"
+		]
+	}
+]

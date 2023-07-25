@@ -76,7 +76,7 @@ cd acme-askforhelp
     --source-path apps/acme-catalog \
     --build-env BP_JVM_VERSION=17
     ```
-1. Deploy the new ai service `acme-askforhelp` :
+1. Deploy the new ai service `assist-service` :
     ```bash
     cd ai
     source ./setup-ai-env-variables.sh
@@ -84,9 +84,9 @@ cd acme-askforhelp
     az spring gateway route-config create \
         --name ${AI_APP} \
         --app-name ${AI_APP} \
-        --routes-file askforhelp-service.json
+        --routes-file assist-service.json
     az spring app deploy --name ${AI_APP} \
-        --source-path acme-askforhelp \
+        --source-path assist-service \
         --build-env BP_JVM_VERSION=17 \
         --env AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT} AZURE_OPENAI_APIKEY=${AZURE_OPENAI_APIKEY} AZURE_OPENAI_CHATDEPLOYMENTID=${AZURE_OPENAI_CHATDEPLOYMENTID} AZURE_OPENAI_EMBEDDINGDEPLOYMENTID=${AZURE_OPENAI_EMBEDDINGDEPLOYMENTID}
     ```
