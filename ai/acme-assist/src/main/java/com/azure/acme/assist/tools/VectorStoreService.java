@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -35,7 +34,8 @@ public class VectorStoreService {
 	@Autowired
 	private VectorStore vectorStore;
 
-	public void buildFromJson(List<String> files, String saveToPath, List<String> pages, String format) throws IOException {
+	public void buildFromJson(List<String> files, String saveToPath, List<String> pages, String format)
+			throws IOException {
 		if (CollectionUtils.isEmpty(files)) {
 			throw new IllegalArgumentException("jsonFiles shouldn't be empty.");
 		}
@@ -65,36 +65,26 @@ public class VectorStoreService {
 				products = new ArrayList<>();
 				products.add(product);
 			}
-			
-			
-			for (var product : products) {
-				if (pages == null || pages.contains(product.getName())) {
-					vectorStore.clear();
-					log.info("String to process {}...", product.getName());
-					var textChunks = splitter.split(product.getDescription());
-					for (var chunk : textChunks) {
-						var response = client.getEmbeddings(List.of(chunk));
-						var embedding = response.getData().get(0).getEmbedding();
-						String key = UUID.randomUUID().toString();
-						vectorStore.saveRecord(RecordEntry.builder()
-								.id(key)
-								.docId(product.getId())
-								.docTitle(product.getName())
-								.embedding(embedding)
-								.text(chunk)
-								.build());
 
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							// pass
-						}
+			for (var product : products) {
+				log.info("String to process {}...", product.getName());
+				var textChunks = splitter.split(product.getDescription());
+				for (var chunk : textChunks) {
+					var response = client.getEmbeddings(List.of(chunk));
+					var embedding = response.getData().get(0).getEmbedding();
+					String key = UUID.randomUUID().toString();
+					vectorStore.saveRecord(RecordEntry.builder().id(key).docId(product.getId())
+							.docTitle(product.getName()).embedding(embedding).text(chunk).build());
+
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						// pass
 					}
-					((SimpleMemoryVectorStore) vectorStore)
-							.saveToJsonFile(Paths.get(saveToPath, product.getName() + ".json").toFile());
 				}
 			}
 		}
+		((SimpleMemoryVectorStore) vectorStore).saveToJsonFile(new File(saveToPath));
 
 		log.info("All documents are loaded to the local vector store. The index file saved to: {}", saveToPath);
 	}
