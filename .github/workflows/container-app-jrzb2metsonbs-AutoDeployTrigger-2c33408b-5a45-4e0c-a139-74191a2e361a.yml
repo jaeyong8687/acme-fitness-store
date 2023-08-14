@@ -1,0 +1,45 @@
+name: Trigger auto deployment for container-app-jrzb2metsonbs
+
+# When this action will be executed
+on:
+  # Automatically trigger it when detected changes in repo
+  push:
+    branches: 
+      [ zlhe-test ]
+    paths:
+    - 'apps/acme-cart/**'
+    - '.github/workflows/container-app-jrzb2metsonbs-AutoDeployTrigger-2c33408b-5a45-4e0c-a139-74191a2e361a.yml'
+
+  # Allow mannually trigger 
+  workflow_dispatch:      
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions: 
+      id-token: write #This is required for requesting the OIDC JWT Token
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.CONTAINERAPPJRZB2METSONBS_AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.CONTAINERAPPJRZB2METSONBS_AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.CONTAINERAPPJRZB2METSONBS_AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and push container image to registry
+        uses: azure/container-apps-deploy-action@v1
+        with:
+          appSourcePath: ${{ github.workspace }}/apps/acme-cart 
+          registryUrl: containerregistryjrzb2metsonbs.azurecr.io
+          registryUsername: ${{ secrets.CONTAINERAPPJRZB2METSONBS_REGISTRY_USERNAME }}
+          registryPassword: ${{ secrets.CONTAINERAPPJRZB2METSONBS_REGISTRY_PASSWORD }}
+          containerAppName: container-app-jrzb2metsonbs
+          resourceGroup: jy-test
+          imageToBuild: containerregistryjrzb2metsonbs.azurecr.io/container-app-jrzb2metsonbs:${{ github.sha }}
+          dockerfilePath: Dockerfile
+
+
